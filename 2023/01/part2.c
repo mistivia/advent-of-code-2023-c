@@ -37,14 +37,17 @@ int find_number(const char *line) {
     return -1;
 }
 
-int main() {
+void unit_test() {
     // test find_number
     assert(find_number("0") == 0);
     assert(find_number("one") == 1);
     assert(find_number("zero123") == 0);
     assert(find_number("nine888") == 9);
     assert(find_number("nin") == -1);
+}
 
+int main() {
+    // unit_test();
     FILE* fp = fopen("./input", "r");
     int sum = 0;
     while (1) {
