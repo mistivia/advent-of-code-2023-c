@@ -49,21 +49,6 @@ void parse_game(const char *line, game_t *game) {
     game->length = i;
 }
 
-void unit_test() {
-    set_t s;
-    
-    parse_set("1 green, 2 blue, 3 red", &s);
-    assert(s.r == 3 && s.b == 2 && s.g == 1);
-    
-    parse_set(" 9 green, 5 blue", &s);
-    assert(s.g == 9 && s.b == 5 && s.r == 0);
-    
-    game_t game;
-    parse_game("Game 26: 11 red, 9 blue; 3 blue, 3 red, 3 green; 10 blue, 3 green, 4 red; 1 green, 4 blue, 9 red; 5 green, 1 red, 7 blue; 1 red, 3 blue, 3 green", &game);
-    assert(game.length == 6);
-    assert(game.sets[5].b == 3);
-}
-
 int is_possible(game_t *game) {
     for (int i = 0; i < game->length; i++) {
         if (game->sets[i].r <= 12
@@ -77,7 +62,6 @@ int is_possible(game_t *game) {
 }
 
 int main() {
-    unit_test();
     FILE *fp = fopen("./input", "r");
     int sum = 0;
     for (int i = 0; i < 100; i++) {

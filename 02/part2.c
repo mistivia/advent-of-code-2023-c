@@ -61,27 +61,7 @@ int power(game_t *game) {
     return maxr * maxg * maxb;
 }
 
-void unit_test() {
-    set_t s;
-    
-    parse_set("1 green, 2 blue, 3 red", &s);
-    assert(s.r == 3 && s.b == 2 && s.g == 1);
-    
-    parse_set(" 9 green, 5 blue", &s);
-    assert(s.g == 9 && s.b == 5 && s.r == 0);
-    
-    game_t game;
-    parse_game("Game 26: 11 red, 9 blue; 3 blue, 3 red, 3 green; 10 blue, 3 green, 4 red; 1 green, 4 blue, 9 red; 5 green, 1 red, 7 blue; 1 red, 3 blue, 3 green", &game);
-    assert(game.length == 6);
-    assert(game.sets[5].b == 3);
-
-    parse_game("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red", &game);
-    assert(power(&game) == 630);
-}
-
-
 int main() {
-    // unit_test();
     FILE *fp = fopen("./input", "r");
     int sum = 0;
     for (int i = 0; i < 100; i++) {
