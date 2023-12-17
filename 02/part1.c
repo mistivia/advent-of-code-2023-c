@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "str.h"
+#include "vec.h"
 
 typedef struct {
     int r,g,b;
@@ -17,36 +18,32 @@ typedef struct {
 game_t games[100];
 
 void parse_set(const char *str, set_t *set) {
-    char **strs = str_split(str, ',');
+    void* strs = str_split(str, ',');
     set->r = 0;
     set->g = 0;
     set->b = 0;
-    while (*strs != NULL) {
-        char **infos = str_split(str_strip(*strs), ' ');
-        if (strcmp(infos[1], "red") == 0) {
-            set->r = strtol(infos[0], NULL, 10);
-        } else if (strcmp(infos[1], "blue") == 0) {
-            set->b = strtol(infos[0], NULL, 10);
-        } else if (strcmp(infos[1], "green") == 0) {
-            set->g = strtol(infos[0], NULL, 10);
+    for (int i = 0; i < vec_size(strs); i++) {
+        char *str = vec_get(strs, i);
+        void* infos = str_split(str, ' ');
+        if (strcmp(vec_get(infos, 1), "red") == 0) {
+            set->r = strtol(vec_get(infos, 0), NULL, 10);
+        } else if (strcmp(vec_get(infos, 1), "blue") == 0) {
+            set->b = strtol(vec_get(infos, 0), NULL, 10);
+        } else if (strcmp(vec_get(infos, 1), "green") == 0) {
+            set->g = strtol(vec_get(infos, 0), NULL, 10);
         }
-        strs++;
     }
 }
 
 void parse_game(const char *line, game_t *game) {
-    char **strs = str_split(line, ':');
-    char **sets_str = str_split(strs[1], ';');
-    int i = 0;
-    while (*sets_str != NULL) {
+    void *strs = str_split(line, ':');
+    void *sets_str = str_split(vec_get(strs, 1), ';');
+    for (int i = 0; i < vec_size(sets_str); i++) {
         set_t s;
-        parse_set(str_strip(*sets_str), &s);
+        parse_set(str_strip(vec_get(sets_str, i)), &s);
         game->sets[i] = s;
-
-        sets_str++;
-        i++;
     }
-    game->length = i;
+    game->length = vec_size(sets_str);
 }
 
 int is_possible(game_t *game) {

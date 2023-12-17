@@ -8,7 +8,7 @@
 #include <stddef.h>
 
 char *str_strip(const char *str);
-char **str_split(const char *str, char delim);
+void* str_split(const char *str, char delim);
 
 
 // string stream
