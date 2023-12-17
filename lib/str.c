@@ -56,15 +56,6 @@ char **str_split(const char *str, char delim) {
     return ret;
 }
 
-void destroy_str_list(char **list) {
-    char **p = list;
-    while (*p != NULL) {
-        free(*p);
-        p++;
-    }
-    free(list);
-}
-
 char *str_strip(const char *str) {
     if (str == NULL) return NULL;
     int len = strlen(str);
@@ -83,45 +74,66 @@ char *str_strip(const char *str) {
     return buf;
 }
 
-void init_str_builder(str_builder_t *sb) {
-    *sb = (str_builder_t){.size = 0, .cap = 16};
-    sb->buf = malloc(sizeof(char) * 17);
+typedef struct {
+    size_t size;
+    size_t cap;
+    char *buf;
+} str_builder_t;
+
+// string stream
+void* new_ss() {
+    str_builder_t *self = malloc(sizeof(str_builder_t));
+    *self = (str_builder_t){.size = 0, .cap = 16};
+    self->buf = malloc(sizeof(char) * 17);
+    return self;
 }
 
-static void sb_reserve(str_builder_t *sb, int extra) {
-    if (sb->size + extra <= sb->cap) {
+static void ss_reserve(str_builder_t *self, int extra) {
+    if (self->size + extra <= self->cap) {
         return;
     }
-    int new_cap = (sb->size + extra) * 2;
-    sb->buf = realloc(sb->buf, new_cap + 1);
-    memset(sb->buf + sb->cap, 0, new_cap - sb->cap + 1);
-    sb->cap = new_cap;
+    int new_cap = (self->size + extra) * 2;
+    self->buf = realloc(self->buf, new_cap + 1);
+    memset(self->buf + self->cap, 0, new_cap - self->cap + 1);
+    self->cap = new_cap;
 }
 
-void str_builder_append(str_builder_t *sb, char *format, ...) {
+void ss_add(void *self_, char *format, ...) {
+    str_builder_t *self = self_;
     va_list va1;
     va_list va2;
     va_start(va1, format);
     va_copy(va2, va1);
     int size = vsnprintf(NULL, 0, format, va1);
-    sb_reserve(sb, size);
-    vsnprintf(sb->buf + sb->size, sb->cap - sb->size + 1, format, va2);
+    ss_reserve(self, size);
+    vsnprintf(self->buf + self->size, self->cap - self->size + 1, format, va2);
+    self->size += size;
 }
 
-void str_builder_append_char(str_builder_t *sb, char c) {
-    sb_reserve(sb, 1);
-    sb->buf[sb->size] = c;
-    sb->size++;
+void ss_addc(void *self_, char c) {
+    str_builder_t *self = self_;
+    ss_reserve(self, 1);
+    self->buf[self->size] = c;
+    self->size++;
+}
+
+char *ss_cstr(void *self_) {
+    str_builder_t *self = self_;
+    return self->buf;    
+}
+
+size_t ss_size(void *self_) {
+    str_builder_t *self = self_;
+    return self->size;
 }
 
 char *fgetline(FILE *fp) {
-    str_builder_t sb;
-    init_str_builder(&sb);
+    void *ss = new_ss();
     while (true) {
         int c = fgetc(fp);
-        if (c == EOF && sb.size == 0) return NULL;
-        if (c != EOF) str_builder_append_char(&sb, c);
-        if (c == EOF || c == '\n') return sb.buf;
+        if (c == EOF && ss_size(ss) == 0) return NULL;
+        if (c != EOF) ss_addc(ss, c);
+        if (c == EOF || c == '\n') return ss_cstr(ss);
     }
     return NULL;
 }

@@ -1,25 +1,22 @@
 // Copyright (C) 2023 Arcane Lactiflora <arcanelactiflora@outlook.com>
 // Licensed under GPLv3. See LICENSE for details.
 
-#ifndef ALGDS_STR_H_
-#define ALGDS_STR_H_
+#ifndef DYMC_STR_H_
+#define DYMC_STR_H_
 
 #include <stdio.h>
+#include <stddef.h>
 
 char *str_strip(const char *str);
 char **str_split(const char *str, char delim);
-void destroy_str_list(char **list);
 
-struct str_builder {
-    char *buf;
-    int size;
-    int cap;
-};
-typedef struct str_builder str_builder_t;
 
-void init_str_builder(str_builder_t *sb);
-void str_builder_append(str_builder_t *sb, char *format, ...);
-void str_builder_append_char(str_builder_t *sb, char c);
+// string stream
+void* new_ss();
+void ss_add(void *self, char *format, ...);
+void ss_addc(void *self, char c);
+char *ss_cstr(void *self);
+size_t ss_size(void* self);
 
 char *fgetline(FILE *fp);
 int fpeek(FILE *fp);

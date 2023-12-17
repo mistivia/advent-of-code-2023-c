@@ -29,10 +29,9 @@ typedef struct {
 } num_t;
 
 char *compose_key(int x, int y) {
-    str_builder_t sb;
-    init_str_builder(&sb);
-    str_builder_append(&sb, "%d,%d", x, y);
-    return sb.buf;
+    void* ss = new_ss();
+    ss_add(ss, "%d,%d", x, y);
+    return ss_cstr(ss);
 }
 
 void *parse_nums(void *schema) {
